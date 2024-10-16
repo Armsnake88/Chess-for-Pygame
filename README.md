@@ -42,7 +42,8 @@ This project is a simple chess game built using [Python](https://www.python.org/
 8. **Exiting the Game**:
    - The game loop exits when the player closes the window, and Pygame is properly shut down.
 
-Overall, this script sets up a basic interactive chess game where players can click and drag pieces to make moves, with the game logic ensuring that only legal moves are allowed.
+Overall, this script sets up a basic interactive chess game where players can click and drag pieces to make moves, with the game logic ensuring that only legal moves are allowed. 
+
 ---
 
         
