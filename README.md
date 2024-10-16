@@ -1,92 +1,32 @@
-# Convoy 
+# Chess Game State Management
 
-### ChessEngine Breakdown
-- **Initialization (`__init__` method):** 
-  - Initializes an 8x8 chess board with pieces in their starting positions.
-  - Sets `white_to_move` to `True`, indicating it's white's turn to move.
-  - Initializes `move_log` to keep track of all moves made, which is useful for undoing moves.
+This code provides a basic framework for managing the state of a chess game. It includes the representation of the chessboard, the logic for moving pieces, and the ability to track and undo moves. Here's a breakdown of the main components:
 
-- **`undo_move` Method:**
-  - Reverts the last move made by popping it from `move_log`.
-  - Restores the piece to its original position and captures back any piece that was taken.
-  - Switches the turn back to the previous player.
+## GameState Class
 
-- **`getValidMoves` Method:**
-  - Placeholder for generating all valid moves, considering checks and other rules. Currently, it calls `getAllPossibleMoves`, which does not consider checks.
+- **Board Representation**: The chessboard is represented as an 8x8 grid (a list of lists), where each element is a string representing a piece or an empty square. For example, `'bR'` represents a black rook, `'wp'` represents a white pawn, and `'--'` represents an empty square.
 
-- **`getAllPossibleMoves` Method:**
-  - Iterates over the board to find all possible moves for the current player, without considering checks.
-  - Calls specific methods to get moves for pawns and rooks (`getPawnMoves` and `getRookMoves`), though these methods are not yet implemented.
+- **Turn Management**: The `white_to_move` attribute keeps track of whose turn it is to move. It starts as `True` for white's turn and toggles after each move.
 
-- **`make_move` Method:**
-  - Executes a move by updating the board and logging the move.
-  - Switches the turn to the other player.
+- **Move Logging**: The `move_log` list stores all moves made during the game, allowing for undoing moves.
 
-### `Move` Class
-- **Initialization (`__init__` method):**
-  - Takes starting and ending positions and the board as input.
-  - Stores the starting and ending row and column indices.
-  - Records the piece being moved and any piece being captured.
-  - Generates a unique `moveID` for the move, useful for comparison.
+- **Undo Move**: The `undo_move` method allows the last move to be undone, restoring the board to its previous state and toggling the turn back.
 
-- **`__eq__` Method:**
-  - Overrides the equality operator to compare moves based on their `moveID`.
+- **Move Generation**: The `getValidMoves` method generates all possible moves for the current player, ignoring checks for simplicity. It calls `getAllPossibleMoves`, which iterates over the board and delegates move generation to specific methods based on the piece type (e.g., `getPawnMoves`, `getRookMoves`).
 
-- **`get_chess_notation` Method:**
-  - Converts the move into standard chess notation using file (column) and rank (row) labels.
+- **Piece-Specific Move Logic**: Currently, only pawn moves are implemented. The `getPawnMoves` method handles forward moves, captures, and the potential for a double move from the starting position. Other piece types (rook, queen, knight, king, bishop) have placeholders for future implementation.
 
-### Additional Notes
-- The code is structured to handle basic chess operations but lacks implementations for special moves like castling, en passant, and pawn promotion.
-- The `getPawnMoves` and `getRookMoves` methods are placeholders and need to be implemented to generate actual moves for these pieces.
-- The `getValidMoves` method is intended to filter out moves that would leave the king in check, but this logic is not yet implemented.
+- **Making Moves**: The `make_move` method checks if a move is valid and then executes it by updating the board and logging the move.
 
-### ChessEngine Breakdown 
+## Move Class
 
-### Imports and Constants
-- **Imports**: The script imports necessary modules, including `os` for file path operations, `pygame` as `p` for game development, and `ChessEngine` for handling the game logic.
-- **Constants**: 
-  - `WIDTH` and `HEIGHT` define the dimensions of the game window.
-  - `DIMENSION` is set to 8, representing an 8x8 chess board.
-  - `SQ_SIZE` calculates the size of each square on the board.
-  - `MAX_FPS` sets the frame rate for the game loop.
-  - `IMAGES` is a dictionary to store loaded images of chess pieces.
-  - `BEIGE` and `BROWN` are colors used for the chess board squares.
+- **Move Representation**: A `Move` object represents a move from one square to another. It stores the starting and ending positions, the piece moved, and any piece captured.
 
-### Image Loading
-- **`loadImages()` Function**: This function loads and scales images for each chess piece. It iterates over a list of piece identifiers (e.g., "wp" for white pawn) and loads the corresponding image file from the `images` directory, scaling it to fit the square size.
+- **Chess Notation**: The `get_chess_notation` method converts a move into standard [chess notation](https://en.wikipedia.org/wiki/Chess_notation) (e.g., "e2,e4").
 
-### Main Game Loop
-- **`main()` Function**: This is the main driver function for the chess game.
-  - Initializes Pygame and sets up the display window.
-  - Creates a `GameState` object from the `ChessEngine` module to manage the game state.
-  - Loads images and initializes a font for drawing text on the board.
-  - Initializes variables for tracking selected squares and player clicks.
-  - Retrieves valid moves from the game state and sets a flag (`moveMade`) to track when a move is made.
+- **Equality Check**: The `__eq__` method allows for comparing two moves to see if they are the same, based on their unique move ID.
 
-- **Event Handling**:
-  - **Mouse Events**:
-    - `MOUSEBUTTONDOWN`: Captures the position of the mouse click and determines if a piece is being selected for dragging.
-    - `MOUSEBUTTONUP`: Captures the position where the mouse button is released, constructs a move, and checks if it's valid. If valid, the move is executed, and the dragging state is reset.
-  - **Keyboard Events**:
-    - `KEYDOWN`: Checks for specific key presses, such as the 'Z' key to undo the last move.
+---
 
-- **Move Handling**:
-  - If a move is made, the list of valid moves is updated.
-  - The game state is drawn on the screen, and the display is updated at the specified frame rate.
-
-### Drawing Functions
-- **`drawGameState()`**: Draws the current state of the game, including the board and pieces.
-- **`drawBoard()`**: Draws the chess board with alternating colors for squares and calls `drawBoardLabels()` to add file and rank labels.
-- **`drawBoardLabels()`**: Adds labels to the board for files (a-h) and ranks (1-8).
-- **`drawPieces()`**: Iterates over the board and draws each piece in its respective position using the loaded images.
-- **`drawDraggingPiece()`**: Draws the piece currently being dragged by the player, following the mouse cursor.
-
-### Execution
-- The script checks if it is being run as the main module and calls the `main()` function to start the game.
-
-### Notes
-- **ChessEngine Module**: The script relies on the `ChessEngine` module to handle game logic, such as move validation and execution. This module should define classes and methods like `GameState`, `Move`, `getValidMoves()`, `make_move()`, and `undo_move()`.
-- **Images and Fonts**: Ensure that the images for chess pieces are stored in the `images` directory and that the font file `Roboto-Regular.ttf` is available in the working directory.
-
-This code provides a basic framework for a chess game, handling user interactions through mouse and keyboard events, and rendering the game state using Pygame's drawing capabilities.
-
+This code provides a foundation for a chess game engine, focusing on the core mechanics of move generation and execution. Future enhancements could include implementing move logic for all piece types, handling special moves like [castling](https://en.wikipedia.org/wiki/Castling) and [en passant](https://en.wikipedia.org/wiki/En_passant), and adding checks for legal moves (e.g., avoiding moves that leave the king in check).
+        
