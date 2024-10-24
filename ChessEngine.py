@@ -1,7 +1,7 @@
 class GameState:
     def __init__(self):
         '''
-        Board is a 8x8 2d list
+        Board is an 8x8 2D list
         '''
         self.board = [
             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
@@ -13,7 +13,7 @@ class GameState:
             ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
             ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
         ]
-        self.white_to_move = True  # False is black
+        self.white_to_move = True  # True if it's white's turn
         self.move_log = []
 
     def undo_move(self):
@@ -33,18 +33,30 @@ class GameState:
             for c in range(len(self.board[r])):
                 turn = self.board[r][c][0]
                 if (turn == 'w' and self.white_to_move) or (turn == 'b' and not self.white_to_move):
-                    piece = self.board[r][c][1]
-                    if piece == 'P':  # Pawn
+                    piece = self.board[r][c]  # Get the full piece string
+                    if piece == 'wp':  # White Pawn
                         self.getPawnMoves(r, c, moves)
-                    elif piece == 'N':  # Knight
+                    elif piece == 'bp':  # Black Pawn
+                        self.getPawnMoves(r, c, moves)
+                    elif piece == 'wN':  # White Knight
                         self.getKnightMoves(r, c, moves)
-                    elif piece == 'B':  # Bishop
+                    elif piece == 'bN':  # Black Knight
+                        self.getKnightMoves(r, c, moves)
+                    elif piece == 'wB':  # White Bishop
                         self.getBishopMoves(r, c, moves)
-                    elif piece == 'R':  # Rook
+                    elif piece == 'bB':  # Black Bishop
+                        self.getBishopMoves(r, c, moves)
+                    elif piece == 'wR':  # White Rook
                         self.getRookMoves(r, c, moves)
-                    elif piece == 'Q':  # Queen
+                    elif piece == 'bR':  # Black Rook
+                        self.getRookMoves(r, c, moves)
+                    elif piece == 'wQ':  # White Queen
                         self.getQueenMoves(r, c, moves)
-                    elif piece == 'K':  # King
+                    elif piece == 'bQ':  # Black Queen
+                        self.getQueenMoves(r, c, moves)
+                    elif piece == 'wK':  # White King
+                        self.getKingMoves(r, c, moves)
+                    elif piece == 'bK':  # Black King
                         self.getKingMoves(r, c, moves)
         return moves
 
@@ -54,11 +66,13 @@ class GameState:
                 moves.append(Move((r, c), (r - 1, c), self.board))
                 if r == 6 and self.board[r - 2][c] == "--":  # Double move from starting position
                     moves.append(Move((r, c), (r - 2, c), self.board))
+
             # Captures
             if c > 0 and self.board[r - 1][c - 1][0] == 'b':  # Capture left
                 moves.append(Move((r, c), (r - 1, c - 1), self.board))
             if c < len(self.board[r]) - 1 and self.board[r - 1][c + 1][0] == 'b':  # Capture right
                 moves.append(Move((r, c), (r - 1, c + 1), self.board))
+
             # En passant
             # Add logic for en passant here
 
@@ -67,11 +81,13 @@ class GameState:
                 moves.append(Move((r, c), (r + 1, c), self.board))
                 if r == 1 and self.board[r + 2][c] == "--":  # Double move from starting position
                     moves.append(Move((r, c), (r + 2, c), self.board))
+
             # Captures
             if c > 0 and self.board[r + 1][c - 1][0] == 'w':  # Capture left
                 moves.append(Move((r, c), (r + 1, c - 1), self.board))
             if c < len(self.board[r]) - 1 and self.board[r + 1][c + 1][0] == 'w':  # Capture right
                 moves.append(Move((r, c), (r + 1, c + 1), self.board))
+
             # En passant
             # Add logic for en passant here
 
@@ -147,18 +163,16 @@ class GameState:
                     break
 
     def make_move(self, move):
-        # Generate all valid moves
-        valid_moves = self.getValidMoves()
-
         # Check if the move is valid
+        valid_moves = self.getValidMoves()
         if move in valid_moves:
             # Execute the move
             self.board[move.start_row][move.start_col] = "--"  # Empty the start square
             self.board[move.end_row][move.end_col] = move.piece_moved
-            self.white_to_move = not self.white_to_move
             self.move_log.append(move)
-            # Handle special moves (e.g., promotion, castling)
-            # Example for pawn promotion:
+            self.white_to_move = not self.white_to_move  # Toggle turn
+
+            # Handle special moves (e.g., promotion)
             if move.piece_moved[1] == 'P' and (move.end_row == 0 or move.end_row == 7):
                 self.board[move.end_row][move.end_col] = move.piece_moved[0] + 'Q'  # Promote to queen
 
@@ -176,7 +190,7 @@ class Move:
     def get_chess_notation(self):
         files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         ranks = ['1', '2', '3', '4', '5', '6', '7', '8']
-        return f"{files[self.start_col]}{ranks[7 - self.start_row]},{files[self.end_col]}{ranks[7 - self.end_row]}"
+        return f"({files[self.start_col]}{ranks[7 - self.start_row]},{files[self.end_col]}{ranks[7 - self.end_row]})"
 
     def __eq__(self, other):
         if isinstance(other, Move):

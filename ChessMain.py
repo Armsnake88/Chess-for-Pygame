@@ -62,9 +62,11 @@ def main():
                     move = ChessEngine.Move(start_pos, end_pos, gs.board)
 
                     if move in validMoves:
+
                         gs.make_move(move)
                         print(move.get_chess_notation())
                         validMoves = gs.getValidMoves()
+
 
                     # Reset dragging state
                     piece_dragging = None
